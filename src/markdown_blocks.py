@@ -47,6 +47,7 @@ def block_to_block_type(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+
     child_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
@@ -59,14 +60,21 @@ def markdown_to_html_node(markdown):
                 child_nodes.append(ParentNode("pre", [LeafNode("code", block[4:-3])]))
             case BlockType.QUOTE:
                 lines = block.split("\n")
-                child_nodes.append(ParentNode(
-                    "blockquote", [LeafNode("p", " ".join(list(map(lambda line: line[2:], lines))))]))
+                child_nodes.append(LeafNode(
+                    "blockquote", " ".join(list(map(lambda line: line[2:], lines)))))
             case BlockType.UNORDERED_LIST:
                 lines = block.split("\n")
-                child_nodes.append(ParentNode("ul", list(map(lambda child: LeafNode('li', child), list(map(lambda line: line[2:], lines))))))
+                extra_child_nodes = []
+                for line in lines:
+                    extra_child_nodes.append(text_to_children(line[2:]))
+                child_nodes.append(ParentNode("ul", list(map(lambda children: LeafNode('li', "".join(list(map(lambda child: child.to_html(), children)))), extra_child_nodes))))
             case BlockType.ORDERED_LIST:
                 lines = block.split("\n")
-                child_nodes.append(ParentNode("ol", list(map(lambda child: LeafNode('li', child), list(map(lambda line: re.sub("^(\\d+)\\. ", "", line), lines))))))
+                extra_child_nodes = []
+                for line in lines:
+                    extra_child_nodes.append(text_to_children(re.sub("^(\\d+)\\. ", "", line)))
+
+                child_nodes.append(ParentNode("ol", list(map(lambda children: LeafNode('li', "".join(list(map(lambda child: child.to_html(), children)))), extra_child_nodes))))
 
     return ParentNode("div", child_nodes)
 

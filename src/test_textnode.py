@@ -42,7 +42,7 @@ class TestTextNode(unittest.TestCase):
 
     def test_text_img_to_html(self):
         node = TextNode("This is a text node", TextType.IMAGE, "https://google.com/random_image_1")
-        self.assertEqual(text_node_to_html_node(node).__repr__(), "HTMLNode(img, None, None, {'src': 'https://google.com/random_image_1', 'alt': 'This is a text node'})")
+        self.assertEqual(text_node_to_html_node(node).__repr__(), "HTMLNode(img, , None, {'src': 'https://google.com/random_image_1', 'alt': 'This is a text node'})")
 
     def test_text_painting_exception(self):
         node = TextNode("This is a text node", "painting", "https://google.com/random_image_1")

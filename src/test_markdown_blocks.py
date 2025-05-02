@@ -106,6 +106,18 @@ the **same** even with inline stuff
             "<div><ol><li>List</li><li>With</li><li>Multiple</li><li>Items</li></ol></div>",
         )
 
+    def test_ordered_list_bold_part(self):
+        md = """
+1. **An Unnecessary Interlude**: The encounter with Tom, while quaint and endearing, serves as a temporal diversion that detracts from the urgency of the Fellowship's quest.
+2. **An Outlier in Purpose**: His escapades, while rich in mirth, add little to the central narrative, raising questions about their relevance in the grand design of Middle-earth.
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li><b>An Unnecessary Interlude</b>: The encounter with Tom, while quaint and endearing, serves as a temporal diversion that detracts from the urgency of the Fellowship's quest.</li><li><b>An Outlier in Purpose</b>: His escapades, while rich in mirth, add little to the central narrative, raising questions about their relevance in the grand design of Middle-earth.</li></ol></div>",
+        )
+
     def test_unordered_list(self):
         md = """
 - List
@@ -119,6 +131,30 @@ the **same** even with inline stuff
         self.assertEqual(
             html,
             "<div><ul><li>List</li><li>With</li><li>Multiple</li><li>Items</li></ul></div>",
+        )
+
+    def test_image(self):
+        md = """
+![JRR Tolkien sitting](/images/tolkien.png)
+    """
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p><img src=\"/images/tolkien.png\" alt=\"JRR Tolkien sitting\"></img></p></div>",
+        )
+
+    def test_link(self):
+        md = """
+[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+    """
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p><a href=\"/blog/glorfindel\">Why Glorfindel is More Impressive than Legolas</a></p></div>",
         )
 
     def test_h1(self):
@@ -155,5 +191,17 @@ the **same** even with inline stuff
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote><p>Nice quote Said by Someone</p></blockquote></div>",
+            "<div><blockquote>Nice quote Said by Someone</blockquote></div>",
+        )
+    def test_blockquote_with_empty_line(self):
+        md = """
+> "I am in fact a Hobbit in all but size."
+>
+> -- J.R.R. Tolkien
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>\"I am in fact a Hobbit in all but size.\"  -- J.R.R. Tolkien</blockquote></div>",
         )
