@@ -2,12 +2,15 @@ from shutil import rmtree, copy
 import os
 from markdown_blocks import markdown_to_blocks, markdown_to_html_node
 import re
+import sys
 
 def main():
-    rebuild_static()
-    generate_pages_recursive("content", "template.html", "public")
+    basepath = "/" if len(sys.argv) == 1 else sys.argv[1]
+    destination = "docs"
+    rebuild_static(destination)
+    generate_pages_recursive("content", "template.html", destination, basepath)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     if not os.path.exists(dir_path_content):
         return
 
@@ -19,15 +22,15 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         current = f"{dir_path_content}/{file}"
         dest_dir = f"{dest_dir_path}/{file}"
         if os.path.isfile(current):
-            generate_page(f"{dir_path_content}/{file}", template_path, f"{dest_dir[:-3]}.html")
+            generate_page(f"{dir_path_content}/{file}", template_path, f"{dest_dir[:-3]}.html", basepath)
         else:
-            generate_pages_recursive(current, template_path, dest_dir)
+            generate_pages_recursive(current, template_path, dest_dir, basepath)
 
-def rebuild_static():
-    if os.path.exists("public"):
-        rmtree("public")
+def rebuild_static(destination):
+    if os.path.exists(destination):
+        rmtree(destination)
 
-    _copy("static", "public")
+    _copy("static", destination)
 
 def _copy(source, dest):
     if os.path.isfile(source):
@@ -46,7 +49,7 @@ def extract_title(markdown):
 
     raise Exception("No title found in markdown")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     markdown_file = open(from_path)
     markdown = markdown_file.read(-1)
@@ -57,7 +60,7 @@ def generate_page(from_path, template_path, dest_path):
     template_file = open(template_path)
     template = template_file.read(-1)
     template_file.close()
-    parsed_template = template.replace("{{ Title }}", title).replace("{{ Content }}", html)
+    parsed_template = template.replace("{{ Title }}", title).replace("{{ Content }}", html).replace("href=\"/", f"href=\"{basepath}").replace("src=\"/", f"src=\"{basepath}")
     output_file = open(dest_path, "w")
     output_file.write(parsed_template)
     output_file.close()
